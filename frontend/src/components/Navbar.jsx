@@ -5,9 +5,7 @@ import { Menu, X, Search, Bell, User, Sun, Moon } from "lucide-react";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [theme, setTheme] = useState(
-    localStorage.getItem("theme") || "light"
-  );
+  const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
 
   // Apply theme on mount and when theme changes
   useEffect(() => {
@@ -122,7 +120,19 @@ const Navbar = () => {
               className="lg:hidden p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition"
               aria-label="Toggle Menu"
             >
-              {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {isOpen ? (
+                <X
+                  className={`w-6 h-6 ${
+                    theme === "dark" ? "text-white" : "text-gray-800"
+                  }`}
+                />
+              ) : (
+                <Menu
+                  className={`w-6 h-6 ${
+                    theme === "dark" ? "text-white" : "text-gray-800"
+                  }`}
+                />
+              )}
             </button>
           </div>
         </nav>
