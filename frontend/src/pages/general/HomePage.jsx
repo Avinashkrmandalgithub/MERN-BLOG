@@ -5,6 +5,7 @@ import HeroSection from "../../components/HeroSection.jsx";
 import FeaturedStory from "../../components/FeaturedStory.jsx";
 import Sidebar from "../../components/Sidebar.jsx";
 import StoryList from "../../components/StoryList.jsx";
+import Footer from "../../components/Footer.jsx";
 
 const HomePage = () => {
   return (
@@ -16,6 +17,16 @@ const HomePage = () => {
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-10">
+            {/* Section Heading */}
+            <div className="mb-6">
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
+                Latest Stories
+              </h2>
+              <p className="text-gray-600 dark:text-gray-400 mt-2">
+                Discover the newest articles from our community
+              </p>
+            </div>
+
             <FeaturedStory />
             <StoryList />
           </div>
@@ -24,6 +35,7 @@ const HomePage = () => {
           <Sidebar />
         </section>
       </main>
+      <Footer />
     </div>
   );
 };
