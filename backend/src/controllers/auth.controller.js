@@ -1,3 +1,4 @@
+import bcrypt from "bcryptjs";
 import UserModel from "../models/user.model.js";
 import jwt from "jsonwebtoken";
 
@@ -84,8 +85,87 @@ const logout = (req, res) => {
     .json({ message: "Logged out successfully" });
 };
 
+// fetch profile
+const getMe = async (req, res) => {
+  try {
+    const user = await UserModel.findById(req.user._id).select("-password");
+    if(!user) return res.status(404).json({
+      message: "User not found.",
+    })
+
+    res.json(user);
+
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    })
+  }
+}
+
+// update profile
+const updateProfile = async(req, res) => {
+  try {
+    const { username, email } = req.body;
+    const user = await UserModel.findById(req.user._id);
+    if(!user) return res.status(404).json({
+      message: "User not found",
+    })
+
+    if(username) user.username = username;
+    if(email) user.email = email;
+    
+    await user.save();
+    res.status(201).json({
+      message: "Profile updated",
+      _id : user._id,
+      email: user.email,
+      username: user.username
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    })
+  }
+}
+
+// change password 
+const changePassword = async (req, res) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+    if(!oldPassword || !newPassword) return res.status(400).json({
+      message: "All fields are required",
+    })
+
+    const user = await UserModel.findById(req.user._id).select("+password");
+    if(!user) return res.status(404).json({
+      message: "User not found",
+    });
+
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if(!isMatch) return res.status(400).json({
+      message: "Old password incorrect",
+    });
+
+    user.password = newPassword
+    await user.save();
+
+    res.status(201).json({
+      message: "Password changed successfully",
+    })
+
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    })
+  }
+}
+
 export default {
   register,
   login,
   logout,
+  getMe,
+  updateProfile,
+  changePassword,
 };
