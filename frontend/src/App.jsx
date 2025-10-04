@@ -1,5 +1,7 @@
-import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+// App.jsx
+import React, { useEffect } from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+import useAuthStore from "./store/useAuthStore.js";
 
 // Pages
 import HomePage from "./pages/general/HomePage.jsx";
@@ -16,29 +18,68 @@ import MyPostsPage from "./pages/user/MyPostsPage.jsx";
 import ProfilePage from "./pages/user/ProfilePage.jsx";
 import PostPage from "./pages/posts/PostPage.jsx";
 
+import PrivateRoute from "./components/PrivateRoute.jsx";
+
 const App = () => {
+  const { getMe, user } = useAuthStore();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token && !user) {
+      getMe(); // ✅ fetch only once when app loads
+    }
+  }, [getMe, user]);
+
   return (
+    <Routes>
+      {/* Public Pages */}
+      <Route path="/" element={<HomePage />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/signup" element={<SignUpPage />} />
+      <Route path="/about" element={<AboutPage />} />
+      <Route path="/contact" element={<ContactPage />} />
+      <Route path="/categories" element={<CategoriesPage />} />
 
-      <Routes>
-        {/* Public Pages */}
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignUpPage />} />
-        <Route path="/about" element={<AboutPage />} />
-        <Route path="/contact" element={<ContactPage />} />
-        <Route path="/categories" element={<CategoriesPage />} />
+      {/* Public Post Page */}
+      <Route path="/post/:id" element={<PostPage />} />
 
-        {/* Temporarily make all pages accessible */}
-        <Route path="/post/:id" element={ <PostPage /> } />
-        <Route path="/create-post" element={<CreatePostPage />} />
-        <Route path="/edit-post/:id" element={<EditPostPage />} />
-        <Route path="/my-posts" element={<MyPostsPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
+      {/* Private Routes */}
+      <Route
+        path="/create-post"
+        element={
+          <PrivateRoute>
+            <CreatePostPage />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/edit-post/:id"
+        element={
+          <PrivateRoute>
+            <EditPostPage />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/my-posts"
+        element={
+          <PrivateRoute>
+            <MyPostsPage />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <PrivateRoute>
+            <ProfilePage />
+          </PrivateRoute>
+        }
+      />
 
-        {/* Catch-all redirect to home */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-
+      {/* Catch-all */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 };
 

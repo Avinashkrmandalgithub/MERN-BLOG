@@ -7,13 +7,15 @@ const SignUpPage = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [avatar, setAvatar] = useState(""); // new field
+  const [bio, setBio] = useState(""); // new field
 
-  const { user, register, laoding, error } = useAuthStore();
+  const { user, register, loading, error } = useAuthStore();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await register(username, email, password);
+    await register(username, email, password, avatar, bio);
 
     if (!error) {
       navigate("/login");
@@ -28,6 +30,7 @@ const SignUpPage = () => {
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Username */}
           <div>
             <label className="block text-gray-700 dark:text-gray-300 mb-1">
               Username
@@ -38,8 +41,11 @@ const SignUpPage = () => {
               onChange={(e) => setUsername(e.target.value)}
               placeholder="Enter your username"
               className="w-full px-5 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-600 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 transition"
+              required
             />
           </div>
+
+          {/* Email */}
           <div>
             <label className="block text-gray-700 dark:text-gray-300 mb-1">
               Email
@@ -50,8 +56,11 @@ const SignUpPage = () => {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
               className="w-full px-5 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-600 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 transition"
+              required
             />
           </div>
+
+          {/* Password */}
           <div>
             <label className="block text-gray-700 dark:text-gray-300 mb-1">
               Password
@@ -62,14 +71,45 @@ const SignUpPage = () => {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
               className="w-full px-5 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-600 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 transition"
+              required
             />
           </div>
+
+          {/* Avatar */}
+          <div>
+            <label className="block text-gray-700 dark:text-gray-300 mb-1">
+              Avatar (Image URL)
+            </label>
+            <input
+              type="text"
+              value={avatar}
+              onChange={(e) => setAvatar(e.target.value)}
+              placeholder="Enter avatar image URL"
+              className="w-full px-5 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-600 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 transition"
+            />
+          </div>
+
+          {/* Bio */}
+          <div>
+            <label className="block text-gray-700 dark:text-gray-300 mb-1">
+              Bio
+            </label>
+            <textarea
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
+              placeholder="Write a short bio (max 200 characters)"
+              maxLength={200}
+              className="w-full px-5 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-600 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 transition"
+            />
+          </div>
+
+          {/* Submit */}
           <button
             type="submit"
-            disabled={laoding}
+            disabled={loading}
             className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white py-3 rounded-xl font-semibold text-lg transition"
           >
-            {laoding ? "Signing up..." : "Sign up"}
+            {loading ? "Signing up..." : "Sign up"}
           </button>
         </form>
 

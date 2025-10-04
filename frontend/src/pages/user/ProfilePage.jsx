@@ -1,25 +1,59 @@
-// src/pages/user/ProfilePage.jsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "../../components/Navbar.jsx";
 import Footer from "../../components/Footer.jsx";
+import useAuthStore from "../../store/useAuthStore.js";
 
 const ProfilePage = () => {
-  const [editMode, setEditMode] = useState(false);
-  const [username, setUsername] = useState("JohnDoe");
-  const [email, setEmail] = useState("johndoe@example.com");
-  const [bio, setBio] = useState("This is my bio.");
-  const [avatar, setAvatar] = useState(null);
+  const { user, getMe, updateProfile, loading } = useAuthStore();
 
-  const handleSave = () => {
-    // TODO: API call to save updated profile
+  const [editMode, setEditMode] = useState(false);
+  const [formdata, setFormData] = useState({
+    username: "",
+    email: "",
+    bio: "",
+    avatar: "",
+  });
+
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        username: user.username || "",
+        email: user.email || "",
+        bio: user.bio || "",
+        avatar: user.avatar || "",
+      });
+    }
+  }, [user]);
+
+  const handleChange = (e) => {
+    setFormData({ ...formdata, [e.target.name]: e.target.value });
+  };
+
+  const handleSave = async () => {
+    await updateProfile(
+      formdata.username,
+      formdata.email,
+      formdata.avatar,
+      formdata.bio
+    );
     setEditMode(false);
   };
 
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
-    if (file) setAvatar(URL.createObjectURL(file));
+    if (file) {
+      setFormData({ ...formdata, avatar: URL.createObjectURL(file) });
+    }
   };
+
+  if (loading && !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-600 dark:text-gray-300">Loading profile...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white dark:bg-gray-950 text-gray-800 dark:text-gray-100 min-h-screen flex flex-col">
@@ -37,7 +71,7 @@ const ProfilePage = () => {
             <div className="relative">
               <div className="w-36 h-36 sm:w-40 sm:h-40 rounded-full overflow-hidden border-4 border-orange-500 shadow-md">
                 <img
-                  src={avatar || "https://via.placeholder.com/150"}
+                  src={formdata.avatar || user?.avatar || "/about.png"}
                   alt="Profile"
                   className="w-full h-full object-cover"
                 />
@@ -66,8 +100,9 @@ const ProfilePage = () => {
                   </label>
                   <input
                     type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    name="username"
+                    value={formdata.username}
+                    onChange={handleChange}
                     className="w-full sm:w-80 px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:bg-gray-700 dark:text-white"
                   />
                 </div>
@@ -77,8 +112,9 @@ const ProfilePage = () => {
                   </label>
                   <input
                     type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    name="email"
+                    value={formdata.email}
+                    onChange={handleChange}
                     className="w-full sm:w-80 px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:bg-gray-700 dark:text-white"
                   />
                 </div>
@@ -87,8 +123,9 @@ const ProfilePage = () => {
                     Bio:
                   </label>
                   <textarea
-                    value={bio}
-                    onChange={(e) => setBio(e.target.value)}
+                    name="bio"
+                    value={formdata.bio}
+                    onChange={handleChange}
                     rows={4}
                     className="w-full sm:w-80 px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:bg-gray-700 dark:text-white resize-none"
                   />
@@ -98,13 +135,21 @@ const ProfilePage = () => {
               <div className="space-y-4">
                 <p className="text-gray-700 dark:text-gray-300">
                   <strong className="text-orange-600">Username:</strong>{" "}
-                  {username}
+                  {user?.username}
                 </p>
                 <p className="text-gray-700 dark:text-gray-300">
-                  <strong className="text-orange-600">Email:</strong> {email}
+                  <strong className="text-orange-600">Email:</strong>{" "}
+                  {user?.email}
                 </p>
                 <p className="text-gray-700 dark:text-gray-300">
-                  <strong className="text-orange-600">Bio:</strong> {bio}
+                  <strong className="text-orange-600">Bio:</strong>{" "}
+                  {user?.bio || "No bio added yet"}
+                </p>
+                <p>
+                  <strong className="text-orange-600">Joined:</strong>{" "}
+                  {user?.createdAt
+                    ? new Date(user.createdAt).toLocaleDateString()
+                    : "N/A"}
                 </p>
               </div>
             )}
